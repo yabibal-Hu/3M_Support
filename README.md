@@ -10,4 +10,3 @@
 ```bash
 chmod +x start.sh stop.sh restart.sh
 chmod 755 logs/# 3M_Support
-# 3M_Support

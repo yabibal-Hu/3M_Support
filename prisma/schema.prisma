@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  telegramId   BigInt    @unique @map("telegram_id")
+  username     String?
+  firstName    String?   @map("first_name")
+  lastName     String?   @map("last_name")
+  languageCode String?   @map("language_code")
+  isActive     Boolean   @default(true) @map("is_active")
+  isBlocked    Boolean   @default(false) @map("is_blocked")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+  messages     Message[]
+
+  @@map("users")
+}
+
+model Message {
+  id                Int      @id @default(autoincrement())
+  userId            Int?     @map("user_id")
+  chatId            BigInt   @map("chat_id")
+  messageText       String?  @map("message_text") @db.Text
+  messageType       String   @map("message_type")
+  mediaType         String?  @map("media_type")
+  fileId            String?  @map("file_id")
+  telegramMessageId BigInt?  @map("telegram_message_id")
+  isForwarded       Boolean  @default(false) @map("is_forwarded")
+  isReplied         Boolean  @default(false) @map("is_replied")
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  user              User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "messages_user_id_fkey")
+  @@map("messages")
+}
+
+model Broadcast {
+  id          Int      @id @default(autoincrement())
+  adminId     Int?     @map("admin_id")
+  messageText String?  @map("message_text") @db.Text
+  mediaType   String?  @map("media_type")
+  fileId      String?  @map("file_id")
+  totalUsers  Int      @default(0) @map("total_users")
+  sentCount   Int      @default(0) @map("sent_count")
+  failedCount Int      @default(0) @map("failed_count")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+
+  @@map("broadcasts")
+}
